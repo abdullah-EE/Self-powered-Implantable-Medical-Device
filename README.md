@@ -80,3 +80,5 @@ Biomedical Engineering / Electrical Systems
 
 This project is open source under the MIT License.  
 Feel free to reference or build upon it with credit.
+## Repository Link
+🔗 [View this project on GitHub](https://github.com/abdullah-EE/Self-powered-Implantable-Medical-Device)
