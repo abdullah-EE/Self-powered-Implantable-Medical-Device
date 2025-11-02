@@ -88,3 +88,42 @@ else:
 print()
 print("Interpretation:", meaning)
 print("Note: Piezo only works if there's repeated motion. Implants in low-motion areas get less.")
+"""
+piezo_model.py
+---------------
+Estimates harvested electrical power from a small piezoelectric harvester
+that converts mechanical motion or pressure into electrical energy.
+
+This model represents an implant placed in or near a location that moves
+repeatedly (such as muscle, artery wall, or joint area).
+
+Author: Abdullah Haydar (2025)
+"""
+
+# --- Imports ---
+import math
+
+# --- Constants ---
+FORCE_NEWTONS = 1.0        # Applied force per compression (N)
+FREQUENCY_HZ = 2.0         # Compression cycles per second (Hz)
+CHARGE_CONST_C_PER_N = 20e-12  # Piezoelectric constant (C/N)
+CAPACITANCE_F = 100e-9     # Farads
+LOAD_RESISTANCE_OHMS = 1e6 # Ohms (1 megaohm)
+EFFICIENCY = 0.8           # 80% conversion efficiency (mechanical → electrical)
+
+# --- Core calculation ---
+def piezoelectric_power(force=FORCE_NEWTONS, freq=FREQUENCY_HZ, charge_const=CHARGE_CONST_C_PER_N,
+                        capacitance=CAPACITANCE_F, load_r=LOAD_RESISTANCE_OHMS, efficiency=EFFICIENCY):
+    """
+    Estimate average electrical power (μW) generated from cyclic mechanical motion.
+    """
+    charge = charge_const * force
+    voltage = charge / capacitance
+    energy_per_cycle = 0.5 * capacitance * (voltage ** 2) * efficiency
+    power = energy_per_cycle * freq
+    return power * 1e6  # convert to microwatts
+
+# --- Run example ---
+if __name__ == "__main__":
+    p = piezoelectric_power()
+    print(f"Estimated piezoelectric power: {p:.3f} μW")
