@@ -57,3 +57,26 @@ Self-powered-Implantable-Medical-Device/
 │
 └── docs/
     └── power_budget.md      <- can harvested energy actually run an implant?
+---
+
+## ⚡ Current Progress
+
+- ✅ Thermoelectric model implemented (`energy_model.py`)
+- ✅ Piezoelectric model implemented (`piezo_model.py`)
+- ✅ Power budget feasibility documented (`docs/power_budget.md`)
+- ⏳ Next: integrate both harvesters and simulate combined output (`integrated_model.py` coming soon)
+
+---
+
+## 🧠 Author
+
+**Abdullah Haydar (2025)**  
+Biomedical Engineering / Electrical Systems  
+[GitHub: abdullah-EE](https://github.com/abdullah-EE)
+
+---
+
+## 📜 License
+
+This project is open source under the MIT License.  
+Feel free to reference or build upon it with credit.
