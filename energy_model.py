@@ -86,3 +86,46 @@ else:
 print()
 print("Interpretation:", meaning)
 print("Note: Implant strategy is NOT constant radio. It's log quietly, then transmit in bursts.")
+"""
+energy_model.py
+----------------
+Simulates thermoelectric energy harvesting from body heat.
+
+This model estimates the power output (in microwatts) from a small thermoelectric
+generator (TEG) implanted in the body. It uses basic physical parameters such as
+temperature difference, surface area, material efficiency, and internal resistance
+to estimate whether a biosensor can be powered continuously or intermittently.
+
+Author: Abdullah Haydar (2025)
+"""
+
+# --- Imports ---
+import math
+
+# --- Constants ---
+SEEBECK_COEFF = 0.0002     # Volts per Kelvin (V/K)
+BODY_TEMP = 37.0           # Celsius (inside)
+SKIN_TEMP = 32.0           # Celsius (surface)
+DELTA_T = BODY_TEMP - SKIN_TEMP  # Temperature difference (K)
+INTERNAL_RESISTANCE = 50.0 # Ohms
+LOAD_RESISTANCE = 50.0     # Ohms
+SURFACE_AREA = 0.0001      # m² (1 cm²)
+TEG_EFFICIENCY = 0.03      # 3% conversion efficiency
+
+# --- Core calculation ---
+def thermoelectric_power(delta_t=DELTA_T, area=SURFACE_AREA, seebeck=SEEBECK_COEFF,
+                         r_internal=INTERNAL_RESISTANCE, r_load=LOAD_RESISTANCE,
+                         efficiency=TEG_EFFICIENCY):
+    """
+    Calculate thermoelectric power output (μW).
+    """
+    voltage = seebeck * delta_t
+    total_r = r_internal + r_load
+    current = voltage / total_r
+    power = (current ** 2) * r_load * efficiency
+    return power * 1e6  # convert to microwatts
+
+# --- Run example ---
+if __name__ == "__main__":
+    p = thermoelectric_power()
+    print(f"Estimated thermoelectric power: {p:.3f} μW")
