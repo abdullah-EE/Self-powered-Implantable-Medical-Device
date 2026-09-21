@@ -1,129 +1,44 @@
-"""
-piezo_model.py
-Estimate harvested electrical power from a small piezoelectric harvester
-that converts mechanical motion / pressure into electrical energy.
+"""Simplified piezoelectric energy-harvesting model for an implant feasibility study.
 
-This models an implant in or near a location that moves repeatedly (muscle, artery wall, joint area).
-
-Author: Abdullah Haydar (2025)
+This is an order-of-magnitude engineering model, not a validated medical-device model.
 """
 
-import math
-
-# --------------------------
-# Assumptions (tune if you get better data later)
-# --------------------------
-
-# Peak force applied on the piezo element each compression (Newtons).
-# 1 N ~ 100 grams-force. We're keeping this gentle because this is inside a body, not a shoe insert.
-force_newtons = 1.0  # N
-
-# Motion frequency (Hz). 2 Hz = 2 events per second.
-# ~1 Hz is like heartbeat. ~2 Hz could be walking/muscle micro-motions.
-frequency_hz = 2.0  # cycles per second
-
-# Piezoelectric coupling modeled as an "effective charge constant" (Coulombs per Newton).
-# Example: 20 pC/N (picoCoulombs per Newton). This is simplified, but acceptable for feasibility scale.
-charge_constant_c_per_n = 20e-12  # 20 pC/N
-
-# Capacitance of the piezo element (Farads). Small piezo films are often tens to hundreds of nF.
-capacitance_f = 100e-9  # 100 nF
-
-# Electrical load we're charging / dumping into.
-load_resistance_ohms = 1e6  # 1 megaohm. High resistance lets voltage build.
-
-# Estimated capture efficiency. We don't get to keep all the mechanical -> electrical energy.
-efficiency = 0.3  # 30%
+DEFAULT_FORCE_N = 1.0
+DEFAULT_FREQUENCY_HZ = 2.0
+DEFAULT_CHARGE_CONSTANT_C_PER_N = 20e-12
+DEFAULT_CAPACITANCE_F = 100e-9
+DEFAULT_EFFICIENCY = 0.30
 
 
-# --------------------------
-# Calculations
-# --------------------------
+def piezoelectric_power(
+    force: float = DEFAULT_FORCE_N,
+    freq: float = DEFAULT_FREQUENCY_HZ,
+    charge_const: float = DEFAULT_CHARGE_CONSTANT_C_PER_N,
+    capacitance: float = DEFAULT_CAPACITANCE_F,
+    efficiency: float = DEFAULT_EFFICIENCY,
+) -> float:
+    """Return estimated average harvested power in microwatts."""
+    if force < 0 or freq < 0 or capacitance <= 0:
+        raise ValueError("Model parameters must be physically valid.")
+    if not 0 <= efficiency <= 1:
+        raise ValueError("Efficiency must be between 0 and 1.")
 
-# Charge per compression:
-# Q = d * F
-charge_coulombs_per_cycle = charge_constant_c_per_n * force_newtons  # Coulombs
-
-# Ideal peak voltage if all that charge went into the piezo capacitance:
-# V = Q / C
-voltage_peak_volts = charge_coulombs_per_cycle / capacitance_f
-
-# Realistic effective voltage after losses:
-effective_voltage_volts = voltage_peak_volts * efficiency
-
-# Energy stored per cycle:
-# E = 0.5 * C * V^2
-energy_per_cycle_joules = 0.5 * capacitance_f * (effective_voltage_volts ** 2)
-
-# Power output:
-# Power (W) = Energy per cycle (J) * cycles per second (Hz)
-power_watts = energy_per_cycle_joules * frequency_hz
-
-# Convert to microwatts
-power_microwatts = power_watts * 1e6
-
-
-# --------------------------
-# Output
-# --------------------------
-
-print("=== Piezoelectric Harvest Model ===")
-print(f"Applied force per cycle:             {force_newtons:.3f} N")
-print(f"Motion frequency:                    {frequency_hz:.2f} Hz")
-print(f"Piezo capacitance:                   {capacitance_f*1e9:.1f} nF")
-print(f"Raw peak voltage (ideal):            {voltage_peak_volts:.3f} V")
-print(f"Effective voltage after losses:      {effective_voltage_volts:.3f} V")
-print()
-print(f"Energy per cycle:                    {energy_per_cycle_joules*1e9:.3f} nJ")
-print(f"Average harvested power:             {power_microwatts:.3f} µW")
-
-# Interpretation
-if power_microwatts >= 10:
-    meaning = "Motion harvesting here can realistically power sensing logic."
-elif power_microwatts >= 1:
-    meaning = "Usable if energy is buffered and transmit is duty-cycled."
-else:
-    meaning = "Very low harvest. Must accumulate charge over time before sending data."
-
-print()
-print("Interpretation:", meaning)
-print("Note: Piezo only works if there's repeated motion. Implants in low-motion areas get less.")
-"""
-piezo_model.py
----------------
-Estimates harvested electrical power from a small piezoelectric harvester
-that converts mechanical motion or pressure into electrical energy.
-
-This model represents an implant placed in or near a location that moves
-repeatedly (such as muscle, artery wall, or joint area).
-
-Author: Abdullah Haydar (2025)
-"""
-
-# --- Imports ---
-import math
-
-# --- Constants ---
-FORCE_NEWTONS = 1.0        # Applied force per compression (N)
-FREQUENCY_HZ = 2.0         # Compression cycles per second (Hz)
-CHARGE_CONST_C_PER_N = 20e-12  # Piezoelectric constant (C/N)
-CAPACITANCE_F = 100e-9     # Farads
-LOAD_RESISTANCE_OHMS = 1e6 # Ohms (1 megaohm)
-EFFICIENCY = 0.8           # 80% conversion efficiency (mechanical → electrical)
-
-# --- Core calculation ---
-def piezoelectric_power(force=FORCE_NEWTONS, freq=FREQUENCY_HZ, charge_const=CHARGE_CONST_C_PER_N,
-                        capacitance=CAPACITANCE_F, load_r=LOAD_RESISTANCE_OHMS, efficiency=EFFICIENCY):
-    """
-    Estimate average electrical power (μW) generated from cyclic mechanical motion.
-    """
     charge = charge_const * force
-    voltage = charge / capacitance
-    energy_per_cycle = 0.5 * capacitance * (voltage ** 2) * efficiency
-    power = energy_per_cycle * freq
-    return power * 1e6  # convert to microwatts
+    ideal_voltage = charge / capacitance
+    energy_per_cycle_j = 0.5 * capacitance * (ideal_voltage ** 2) * efficiency
+    power_w = energy_per_cycle_j * freq
+    return power_w * 1e6
 
-# --- Run example ---
+
+def main() -> None:
+    power_uw = piezoelectric_power()
+    print("=== Piezoelectric Harvest Model ===")
+    print(f"Applied force: {DEFAULT_FORCE_N:.2f} N")
+    print(f"Motion frequency: {DEFAULT_FREQUENCY_HZ:.2f} Hz")
+    print(f"Estimated average power: {power_uw:.6f} µW")
+    print("Note: simplified feasibility estimate; real performance depends on strain,")
+    print("material choice, coupling, placement, and rectification losses.")
+
+
 if __name__ == "__main__":
-    p = piezoelectric_power()
-    print(f"Estimated piezoelectric power: {p:.3f} μW")
+    main()
