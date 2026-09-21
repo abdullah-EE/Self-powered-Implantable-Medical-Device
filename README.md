@@ -1,84 +1,67 @@
-# Self-Powered Implantable Medical Device (Energy-Harvesting Biosensor Concept)
+# Self-Powered Implantable Biosensor — Energy Harvesting Feasibility Study
 
-This project explores a self-powered biomedical implant that uses the body's own energy instead of a traditional battery. The main long-term goal is to design an implantable sensor that can monitor health data without requiring surgical battery replacement.
+An early-stage engineering study exploring whether **thermoelectric and piezoelectric energy harvesting** could support an ultra-low-power implantable sensing system.
 
-This is early-stage feasibility work:
-1. Estimate how much electrical power we can realistically harvest from the body (heat and motion).
-2. Compare that harvested power to what a low-power biosensor needs.
-3. Design a usage pattern (duty cycle) that makes the device realistic: log data continuously at ultra-low power, then transmit data in bursts only when enough energy is stored.
+The goal is not to claim a battery-free medical device. The goal is to build an order-of-magnitude power model and understand the engineering constraints that determine whether energy harvesting could meaningfully extend implant lifetime.
 
-## Why this matters
+## Core question
 
-Most implantable devices depend on a battery. Replacing that battery means surgery. Surgery means cost, infection risk, and pain.
+Can small amounts of energy harvested from **body heat and motion** support a sensing architecture that:
 
-If an implant can partially recharge itself from energy it harvests inside the body, we get:
-- Longer implant lifetime
-- Fewer surgeries per patient
-- Safer continuous health monitoring
-- Better access in places where frequent clinical maintenance is not realistic
+1. spends most of its time in an ultra-low-power state,
+2. stores harvested energy,
+3. measures or logs data intermittently, and
+4. transmits only in short bursts when enough energy is available?
 
-The device here is not just “infinite Bluetooth.” The realistic goal is: always-on sensing and logging, plus short data uploads when there is enough stored energy.
+## Conceptual architecture
 
-## System concept
+~~~text
+Body heat ─→ Thermoelectric harvester ─┐
+                                       ├─→ Power management ─→ Energy storage
+Body motion → Piezoelectric harvester ─┘                         │
+                                                                ↓
+                                                     Sensor + low-power MCU
+                                                                │
+                                                        Burst transmission
+~~~
 
-High level block diagram of the proposed device:
+## Models in this repository
 
-1. Energy harvester  
-   - Option A: Thermoelectric (uses body heat / temperature gradient)  
-   - Option B: Piezoelectric (uses mechanical motion / pressure / vibration)
+- energy_model.py — first-pass thermoelectric power estimate
+- piezo_model.py — first-pass piezoelectric power estimate
+- integrated_model.py — experimental attempt to combine both harvesting paths
 
-2. Power management  
-   - Rectifier / regulator to turn raw harvested energy into something usable
+The models use simplified assumptions and are intended for **feasibility reasoning**, not medical-device validation.
 
-3. Energy storage  
-   - Thin-film rechargeable cell or capacitor
+## Engineering focus
 
-4. Sensor + microcontroller  
-   - Ultra-low-power sensing loop runs continuously
-   - Microcontroller sleeps most of the time to save power
+The interesting constraint is the power budget. Implantable sensing is only plausible when the load is treated as a duty-cycled system rather than assuming an always-on radio.
 
-5. Data transmit burst  
-   - Send data wirelessly in short bursts instead of streaming 24/7
+This project therefore focuses on:
 
-This architecture is how you make an actually possible self-powered implant. The point is not to be “always on radio.” The point is to avoid repeated surgery.
+- harvested power in the microwatt range
+- energy storage between active periods
+- low-power sensing
+- duty cycling
+- burst communication
+- understanding where assumptions dominate the result
 
-## Repository structure
+## Current status
 
-```text
-Self-powered-Implantable-Medical-Device/
-│
-├── README.md                <- project overview (this file)
-├── LICENSE                  <- license terms (MIT for now)
-├── .gitignore               <- ignore Python/OS clutter
-│
-├── code/
-│   ├── energy_model.py      <- thermoelectric model (body heat harvesting)
-│   └── piezo_model.py       <- piezoelectric model (motion / pressure harvesting)
-│
-└── docs/
-    └── power_budget.md      <- can harvested energy actually run an implant?
----
+Early computational feasibility work. The repository contains Python models and initial power-budget reasoning; it does not contain a fabricated implant or validated biomedical hardware.
 
-## ⚡ Current Progress
+## Run the models
 
-- ✅ Thermoelectric model implemented (`energy_model.py`)
-- ✅ Piezoelectric model implemented (`piezo_model.py`)
-- ✅ Power budget feasibility documented (`docs/power_budget.md`)
-- ⏳ Next: integrate both harvesters and simulate combined output (`integrated_model.py` coming soon)
+~~~bash
+python energy_model.py
+python piezo_model.py
+python integrated_model.py
+~~~
 
----
+## Why I built it
 
-## 🧠 Author
+This project was an exploration at the intersection of **electrical engineering, energy harvesting, low-power electronics, and biomedical systems**. More importantly, it was an exercise in testing an ambitious idea against a power budget before treating it as a viable device.
 
-**Abdullah Haydar (2025)**  
-Biomedical Engineering / Electrical Systems  
-[GitHub: abdullah-EE](https://github.com/abdullah-EE)
+## Important note
 
----
-
-## 📜 License
-
-This project is open source under the MIT License.  
-Feel free to reference or build upon it with credit.
-## Repository Link
-🔗 [View this project on GitHub](https://github.com/abdullah-EE/Self-powered-Implantable-Medical-Device)
+This is an educational engineering feasibility project, **not a medical device and not medical advice**.
