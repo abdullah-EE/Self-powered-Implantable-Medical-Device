@@ -1,47 +1,22 @@
-"""
-Integrated Energy Harvesting Model
-----------------------------------
-This script combines results from both the thermoelectric and piezoelectric
-energy harvesting models to estimate the *total* available power for the
-self-powered implantable biosensor.
+"""Combine the simplified thermoelectric and piezoelectric feasibility models."""
 
-It imports both models, runs them, and then prints the combined energy budget.
-"""
+from energy_model import thermoelectric_power
+from piezo_model import piezoelectric_power
 
-# Import both models
-from energy_model import estimate_thermoelectric_power
-from piezo_model import estimate_piezo_power
 
-def integrated_power_estimate():
-    """
-    Run both energy harvesting models and return the total available power.
-    """
+def integrated_power_estimate() -> float:
+    """Return the combined first-pass harvested-power estimate in microwatts."""
+    power_thermo_uw = thermoelectric_power(delta_t=3.0, efficiency=0.03)
+    power_piezo_uw = piezoelectric_power(freq=1.2, efficiency=0.30)
+    total_power_uw = power_thermo_uw + power_piezo_uw
 
-    # 1. Estimate power from thermoelectric harvesting (body heat)
-    power_thermo = estimate_thermoelectric_power(
-        area_cm2=4.0,          # surface area of the thermoelectric module
-        delta_T=3.0,           # typical human skin temperature difference (°C)
-        efficiency=0.06        # assumed thermoelectric efficiency (6%)
-    )
+    print("=== Integrated Energy Harvesting Estimate ===")
+    print(f"Thermoelectric: {power_thermo_uw:.6f} µW")
+    print(f"Piezoelectric:  {power_piezo_uw:.6f} µW")
+    print(f"Combined:       {total_power_uw:.6f} µW")
+    print("This is a simplified feasibility estimate, not a validated implant power budget.")
 
-    # 2. Estimate power from piezoelectric harvesting (motion)
-    power_piezo = estimate_piezo_power(
-        frequency_hz=1.2,      # typical body motion frequency (steps/heartbeat)
-        strain_level=0.004,    # low-level muscle strain (0.4%)
-        material_factor=0.45   # piezoelectric material coefficient
-    )
-
-    # 3. Combine both results
-    total_power = power_thermo + power_piezo
-
-    print("----- Integrated Energy Harvesting Estimate -----")
-    print(f"Thermoelectric power: {power_thermo:.3f} microwatts")
-    print(f"Piezoelectric power:  {power_piezo:.3f} microwatts")
-    print("-----------------------------------------------")
-    print(f"Total estimated power: {total_power:.3f} microwatts")
-    print("--------------------------------------------------")
-
-    return total_power
+    return total_power_uw
 
 
 if __name__ == "__main__":
